@@ -1,0 +1,28 @@
+[
+    {
+        "id": "1",
+        "nombre": "Copia ",
+        "precio_bs": 100.0
+    },
+    {
+        "id": "2",
+        "nombre": "Impresión B/N",
+        "precio_bs": 150.0
+    },
+    {
+        "id": "3",
+        "nombre": "Impresión a Color",
+        "precio_bs": 300.0
+    },
+    {
+        "id": "4",
+        "nombre": "Plastificación",
+        "precio_bs": 500.0
+    },
+    {
+        "id": "5",
+        "nombre": "Arizona",
+        "precio_bs": 3300.00
+    }
+
+]

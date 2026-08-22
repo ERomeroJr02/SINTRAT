@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINTRAT - Punto de Venta</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 24px; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
+
+        .container { display: flex; gap: 24px; max-width: 1100px; margin: auto; }
+        .panel { flex: 1; background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        
+        .panel-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid var(--bg-body); padding-bottom: 10px; }
+        
+        /* Cajas de Tasas */
+        .tasa-box { background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 14px; border-radius: 8px; margin-bottom: 20px; }
+        .tasa-box label { font-size: 0.85rem; font-weight: 600; color: #0369a1; display: block; margin-bottom: 8px; }
+        .tasas-grid { display: flex; gap: 12px; }
+        .tasa-card { flex: 1; background: white; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 6px; }
+        .tasa-card span { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+        .tasa-card input { border: none; background: transparent; font-weight: 700; font-size: 0.95rem; color: var(--text-main); width: 100%; outline: none; }
+
+        /* Formularios */
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+        select, input[type="number"], input[type="text"] { width: 100%; padding: 10px 12px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 6px; background: white; font-family: inherit; }
+        select:focus, input:focus { border-color: var(--primary); outline: 2px solid #bfdbfe; }
+        input[readonly] { background-color: #f8fafc; color: var(--text-muted); cursor: not-allowed; }
+
+        /* Botones */
+        .btn { border: none; border-radius: 6px; padding: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; transition: all 0.2s; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-success { background-color: var(--success); color: white; font-size: 1rem; margin-top: 16px; }
+        .btn-success:hover { background-color: var(--success-hover); }
+
+        /* Tabla del Carrito */
+        table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.9rem; }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        .total-display { font-size: 1.3rem; font-weight: 700; color: var(--success); margin-top: 16px; text-align: right; }
+
+        /* Ticket de Papel / Térmico */
+        .receipt-container { background: #fffbeb; border: 1px dashed #f59e0b; padding: 16px; border-radius: 8px; min-height: 380px; }
+        pre#vistaTicket { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.4; color: #1e293b; white-space: pre-wrap; word-break: break-all; }
+
+        /* ESTILOS DE IMPRESIÓN (Optimizado para tiqueteras de 80mm) */
+        @media print {
+            body * { visibility: hidden; }
+            #printableTicket, #printableTicket * { visibility: visible; }
+            #printableTicket {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm;
+                padding: 0;
+                margin: 0;
+                background: white !important;
+                border: none !important;
+                font-family: 'JetBrains Mono', monospace !important;
+            }
+            pre#vistaTicket {
+                font-size: 10pt !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1><i class="fa-solid fa-print"></i> SINTRAT</h1>
+        <p>Palacio de Justicia — Sistema de Facturación POS</p>
+    </div>
+
+    <div class="container">
+        <!-- Panel Izquierdo: Ventas -->
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-cart-shopping"></i> Registrar Venta</div>
+            
+            <div class="tasa-box">
+                <label><i class="fa-solid fa-building-columns"></i> Tasas Oficiales BCV del Día</label>
+                <div class="tasas-grid">
+                    <div class="tasa-card">
+                        <span>USD</span>
+                        <input type="text" value="Bs. {{ tasas.dolar }}" readonly>
+                    </div>
+                    <div class="tasa-card">
+                        <span>EUR</span>
+                        <input type="text" value="Bs. {{ tasas.euro }}" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="selectProducto">Producto / Servicio</label>
+                <select id="selectProducto" onchange="actualizarPrecio()">
+                    <option value="">-- Seleccionar --</option>
+                    {% for p in productos %}
+                        <option value="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio_bs }}">
+                            {{ p.nombre }} - Bs. {{ "%.2f"|format(p.precio_bs) }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Precio Unitario</label>
+                    <input type="text" id="precioBs" readonly placeholder="Bs. 0.00">
+                </div>
+                <div class="form-group" style="width: 100px;">
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidad" value="1" min="1">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="agregarAlCarrito()">
+                <i class="fa-solid fa-plus"></i> Agregar al Carrito
+            </button>
+
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr><th>Producto</th><th>Cant.</th><th>Subtotal</th></tr>
+                </thead>
+                <tbody id="tablaCarrito"></tbody>
+            </table>
+            
+            <div class="total-display" id="totalPagarBs">Total: Bs. 0.00</div>
+
+            <button class="btn btn-success" onclick="generarEImprimirTicket()">
+                <i class="fa-solid fa-receipt"></i> Generar Ticket e Imprimir
+            </button>
+        </div>
+
+        <!-- Panel Derecho: Vista Previa e Impresión -->
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-ticket"></i> Vista Previa del Comprobante</div>
+            <div class="receipt-container" id="printableTicket">
+                <pre id="vistaTicket">Agregue productos al carrito y presione "Generar Ticket e Imprimir"...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carrito = [];
+        const tasaUsdNum = parseFloat("{{ tasas.dolar }}") || 0;
+        const tasaEurNum = parseFloat("{{ tasas.euro }}") || 0;
+
+        function actualizarPrecio() {
+            const select = document.getElementById('selectProducto');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (selectedOption.value) {
+                const precioBs = parseFloat(selectedOption.getAttribute('data-precio'));
+                document.getElementById('precioBs').value = `Bs. ${precioBs.toFixed(2)}`;
+            } else {
+                document.getElementById('precioBs').value = '';
+            }
+        }
+
+        function agregarAlCarrito() {
+            const select = document.getElementById('selectProducto');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (!selectedOption.value) return alert('Por favor, seleccione un producto.');
+
+            const nombre = selectedOption.getAttribute('data-nombre');
+            const precioBs = parseFloat(selectedOption.getAttribute('data-precio'));
+            const cantidad = parseInt(document.getElementById('cantidad').value);
+
+            carrito.push({ nombre, precio_bs: precioBs, cantidad });
+            renderTabla();
+        }
+
+        function renderTabla() {
+            const tbody = document.getElementById('tablaCarrito');
+            tbody.innerHTML = '';
+            let totalBs = 0;
+
+            carrito.forEach(item => {
+                const subtotalBs = item.precio_bs * item.cantidad;
+                totalBs += subtotalBs;
+                tbody.innerHTML += `<tr><td>${item.nombre}</td><td>${item.cantidad}</td><td>Bs. ${subtotalBs.toFixed(2)}</td></tr>`;
+            });
+
+            document.getElementById('totalPagarBs').innerText = `Total: Bs. ${totalBs.toFixed(2)}`;
+        }
+
+        async function generarEImprimirTicket() {
+            if (carrito.length === 0) return alert('El carrito está vacío.');
+
+            const response = await fetch('/api/generar-ticket', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    items: carrito,
+                    tasa_usd: tasaUsdNum,
+                    tasa_eur: tasaEurNum
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('vistaTicket').innerText = data.ticket;
+                
+                // Disparar diálogo de impresión a la impresora/tiquetera
+                setTimeout(() => {
+                    window.print();
+                }, 300);
+
+                carrito = [];
+                renderTabla();
+            } else {
+                alert(data.error);
+            }
+        }
+    </script>
+</body>
+</html>
